@@ -1,0 +1,14 @@
+Creating Noun lists:
+
+1. Get IIT-B Parallel Corpus
+2. Process both sides through UDPipe
+3. Extract all nouns, with their UD_Feats data, especially the 'Gender' part, if available for both the docs.
+4. Make sure the two noun lists, with their features are aligned properly though.
+
+Filtering Noun lists:
+
+5. Start with creating a dict of list of the words in the target language with their projection on the source side.
+6. Remove the entry from both lists, if the word has entry for both male and female equivalents.
+7. Count the number of elements remaining and also, the number of entries in the either bin.
+
+
