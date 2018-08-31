@@ -5,7 +5,7 @@ This is the morphology project submitted for NPFL096- Computational Morphology c
 
 The project is an implementation of the [paper](base_paper) [1] on 'Minimally Supervised Induction of Grammatical Gender' for the evaluation of English-Hindi pair.
 
-<h2>Data Resources
+<h2>Data Resources</h2>
 
 1. IIT-B parallel-corpus [2], available for download [here](http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/).
 2. [UDPipe](udpipe) [3] for analysis and processing of the parallel-corpus mentioned above.
