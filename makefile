@@ -36,6 +36,14 @@ get_nouns:
 	mv hi.NOUN2 hi.NOUN
 	mv en.NOUN2 en.NOUN
 
+# Since, we won't be needing a few files anymore, let's clean up the directory a bit
+cleanup:
+	mkdir corpus
+	mv IITB.en-hi.en corpus/
+	mv IITB.en-hi.hi corpus/
+	mv en.conllu corpus/
+	mv hi.conllu corpus/
+
 # This is to create a bilingual dictionary using the other details of a token, if at all possible. The output format is explained in the alignments tab in the README.md file.
 create_dict:
 	python3 filename.py -i1 en.output -l1 en -i2 hi.output -l2 hi
