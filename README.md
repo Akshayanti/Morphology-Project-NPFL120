@@ -22,6 +22,14 @@ The pipeline of the entire project, as reproducible through the [makefile](makef
 
 This section includes the files contained, with the switches, if available with their intended purpose.
 
+Note for [true_gender_eng_to_hin](sample/true_gender_eng_to_hin.tsv):
+1. Generated from https://www.collinsdictionary.com/us/dictionary/english-hindi
+2. In case the word was found to be not common, not included.
+3. If a translation was not present, added after checking other resources.
+4. Overlaps between the translations, as clear cut not defined.
+5. A lot of translations also serve as proper nouns, so might have been removed then, or errorenously tagged that way.
+6. Instead of using `gentleman` and 'lady' as in paper, `sir` and `madam` was used instead.
+
 <h2>References and Citations</h2>
 
 [1] Cucerzan, S., & Yarowsky, D. (2003). [Minimally supervised induction of grammatical gender](base_paper). In Proceedings of the 2003 Conference of the North American Chapter of the Association for Computational Linguistics on Human Language Technology-Volume 1 (pp. 40–47). Association for Computational Linguistics.  
