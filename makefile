@@ -76,25 +76,42 @@ sample_data:
 	mv $(HOME)/ud-treebanks-v2x2/UD_Hindi-PUD/hi_pud-ud-test.most_common sample/
 	mv $(HOME)/ud-treebanks-v2x2/* $(HOME)/ud-treebanks-v2.2/
 	rm -r $(HOME)/ud-treebanks-v2x2
-#	mv process_sample.py sample/
 	rm sample/hi*.NOUN
 
-	# Combine the multiple .most_common files, and delete the redundant data. Check the coverage of the data.
-	python3 sample/process_sample.py combine sample/hi_*.most_common
+	# Combine the multiple .most_common files, and delete the redundant data.
+	python3 filter_data.py --combine sample/hi_*.most_common
 	rm sample/hi*.most_common
-	python3 sample/process_sample.py coverage sample/sample.most_common hi.most_common
 
 	# test to know how many values in the true_gender values are used in different context, and output result in an intermediate file.
-	python3 sample/process_sample.py translation sample/true_gender_hin.list sample/*.output > sample/test
+	python3 sample/process_sample.py translation true_gender_hin.list sample/*.output > sample/test
 
 	# process this intermediate file, to generate the symbols as explained in README.md to get a similar output to table 1 in the reference paper
-	python3 sample/process_sample.py translation_check sample/test sample/true_gender_eng_to_hin.tsv
+	python3 sample/process_sample.py translation_check sample/test true_gender_eng_to_hin.tsv
 	# sort the output file, and get rid of the intermediate file
-	sort sample/truth_data_analysis > sample/truth.final
-	rm sample/truth_data_analysis
+	sort -u sample/truth_data_analysis > sample/default_seeds_table.tsv
 	rm sample/test
-	mv sample/truth.final sample/truth_data_analysis.tsv
+	rm truth_data_analysis
+
+bootstrap:
+
+	#	get the list of seeds.
+	#	Output file:	seeds.LIST
+	python3 filter_data.py -i true_gender_eng_to_hin.tsv -ds
+
+	#	remove seeds, ambiguous content, low freq items from sample/sample.most_common
+		#	output file generated:	sample/sample.most_common.list_filtered
+	python3 filter_data.py -i sample/sample.most_common -fl -l remove_list
+	mv sample/sample.most_common.list_filtered sample/sample.removed
+		#	output file generated:	sample/sample.removed.list_filtered
+	python3 filter_data.py -i sample/sample.removed -fl -l seeds.LIST
+	mv sample/sample.removed.list_filtered sample/sample.non_ambig
+	rm sample/sample.removed
+		#	output file generated:	sample/sample.non_ambig_min_4
+	python3 filter_data.py -i sample/sample.non_ambig -ff -f 4
+	mv sample/sample.non_ambig_min_* sample/context_bootstrap
+
+	#	continue with the bootstraping, and updating seeds.LIST
+	python3 filter_data.py --bootstrap -i sample/context_bootstrap --conllu sample/hi_*.conllu
 
 
-# TODO: After generating a list of alignements, and eliminating unwanted nouns, find the most suitable collection of nouns, with their translations also good enough in frequency.
 # TODO: Check for filenames, and if modifying them, do so in README and this makefile as well.
