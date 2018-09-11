@@ -19,6 +19,10 @@ parser.add_argument("-ds", "--get_default_seeds", action='store_true', help="Get
 parser.add_argument("--bootstrap", action='store_true', help="Complete contextual bootstraping step for sample.bootstrap file", required=False)
 parser.add_argument("--conllu", nargs="*", help="CONLLU files for bootstraping algorithm", required=False)
 
+parser.add_argument("--morphology", action='store_true', help="Create a trie and analyze the words as in Section 2.4 of the paper", required=False)
+
+parser.add_argument("--get_accuracy", action='store_true', help="Get coverage and the accuracy for the generated data", required=False)
+
 args = parser.parse_args()
 
 
@@ -29,6 +33,19 @@ def get_dict(all_contents):
 		key, value = line.split(" : ")
 		values[key] = int(value.strip("\n"))
 	return values
+
+
+#   wrapper method for extracting `token : value` format into a dict, with (token, value) as (key, value) pair.
+#   differs from get_dict() in only adding a key if value is >=5.
+#   called while using `--bootstrap` and `--morphology`
+def get_dict2(all_contents, min_value):
+	values = dict()
+	for line in all_contents:
+		key, value = line.split(" : ")
+		if int(value.strip("\n")) >= min_value:
+			values[key] = int(value.strip("\n"))
+	return values
+
 
 #   function used for `--filter_by_list` switch.
 #   takes the second file contents, and if element is found in the dict, removes it.
@@ -70,6 +87,7 @@ def process_conllu(score_dict):
 								score_dict[token][2] += 1
 	return score_dict
 
+
 #   updates the seeds, by using contextual bootstrapping.
 #   works with confidence values of 0.33 and higher.
 #   called when using `--bootstrap`
@@ -94,6 +112,69 @@ def update_seeds(dest_file, score_dict):
 				elif female <= 0.85 * male:
 					dest_file.write(token + "\tM\n")
 					
+					
+# 	returns the values of the process_conllu() in the form of probability score
+#   called when using `--morphology`
+def get_probab(scoredict):
+	for key in scoredict:
+		val_list = scoredict[key]
+		total = 0
+		for a in val_list:
+			total +=  a
+		for i in range(len(val_list)):
+			val_list[i] = val_list[i] / total
+	return scoredict
+
+
+#   A wrapper function to reverse a string.
+#   Used when input-ing values into the trie
+def reverse(stringval):
+	return stringval[::-1]
+
+
+#   returns P(gender_j | l_n l_n-1 ... l_i) as per formula in the paper
+#   called when using `--morphology`
+def P(fullword, word, gen):
+	if word in t.keys(shallow=False):
+		if gen == "M":
+			return t[word][0]
+		elif gen == "F":
+			return t[word][1]
+	else:
+		if gen == "M":
+			return t[reverse(fullword)][0]
+		elif gen == "F":
+			return t[reverse(fullword)][1]
+
+
+#   returns P_node(quest) as per formula in the paper
+#   called when using `--morphology`
+def P_quest(fullword, word):
+	if word in t.keys(shallow=False):
+		return t[word][2]
+	else:
+		return t[fullword][2]
+
+
+#   returns P^ (gender_j | l_n l_n-1 ... l_i l_i+1) as per formula in the paper
+#   recursive call
+#   called when using `--morphology`
+def p_cap(word, i, gender):
+	if i == len(word):
+		if gender == "F":
+			return t[reverse(word)][1]
+		elif gender == "M":
+			return t[reverse(word)][0]
+	return P(word, reverse(word)[:i], gender) + P_quest(reverse(word), reverse(word)[:i]) * p_cap(word, i+1, gender)
+
+
+#   function call to calculate the coefficient smoothing for a given word
+#   calls p_cap(), P_quest() and P()
+#   called when using `--morphology`
+def process_word(word, gender):
+	i = 0
+	return p_cap(word, i, gender)
+	
 
 if __name__ == "__main__":
 	
@@ -203,9 +284,136 @@ if __name__ == "__main__":
 		seeds_file = open("seeds.LIST", "a")
 		with open(args.input) as bootfile:
 			contents = bootfile.readlines()
-			bootfile_dict = get_dict(contents)
+			bootfile_dict = get_dict2(contents, 4)
 			scores = defaultdict(list)
 			for items in bootfile_dict:
 				scores[items] = [0, 0, 0]
 			scores = process_conllu(scores)
 		update_seeds(seeds_file, scores)
+
+	if args.morphology:
+		
+		#   check if other necessary arguments are provided for.
+		if not args.input:
+			print("MISSING ARGUMENT\n"
+			      "-i:  Input File")
+			exit(0)
+			
+		#   import from sample.process_sample file
+		from collections import defaultdict
+		from sample.process_sample import  get_gender
+		import pygtrie as trie
+		
+		t = trie.StringTrie()
+		
+		#   first, add all the seeds
+		with open("seeds.LIST", "r") as seeds_file:
+			contents = seeds_file.readlines()
+			for line in contents:
+				word, gender = line.strip("\n").split("\t")
+				if gender == "M":
+					t[reverse(word)] = [1, 0, 0]
+				elif gender == "F":
+					t[reverse(word)] = [0, 1, 0]
+		
+		#   now, input entries from the input file
+		with open(args.input, "r") as morpho:
+			contents = morpho.readlines()
+			
+			#   since the value at the end of string is supposed to be probability of a gender as per contextual bootstraping
+			#   we bootstrap the values with count >= 4 and input the value as the released value of the process_conllu() function, sent to get_probab() function
+			#   for count <= 4, we simply input them as [0, 0, 1] making them all questionable, and relying on just smoothing to get the value.
+			if args.conllu:
+				allscores_dict = get_dict2(contents, 4)
+				
+				#   add the words with count <= 3 with the corresponding [0, 0, 1] into the trie.
+				for line in contents[::-1]:
+					word, count = line.strip("\n").split(" : ")
+					if word not in allscores_dict:
+						t[reverse(word)] = [0.25, 0.25, .50]
+						allscores_dict[word] = [0, 0, 1]
+					else:
+						break
+				
+				#   process_conllu() with elements of count >= 4
+				scores = defaultdict(list)
+				for items in allscores_dict:
+					scores[items] = [0, 0, 0]
+				scores = process_conllu(scores)
+				scores = get_probab(scores)
+			
+				#   having received the probability scores, add the reversed string with the scores to the trie.
+				for key in scores:
+					t[reverse(key)] = scores[key]
+			
+			#   for case when not using context bootstraping, just use all the values as such
+			#   and let the relevant information be received from the seeds input.
+			else:
+				allscores_dict = get_dict(contents)
+				for word in allscores_dict:
+					t[reverse(word)] = [0.25, 0.25, 0.50]
+					
+		#   now that we have added all the data, it's now time for recursive algorithm.
+		for word in allscores_dict:
+			M = process_word(word, "M")
+			F = process_word(word, "F")
+			t[reverse(word)] = [M, F, 1-M-F]
+			
+		# 	Get final output values in an output file
+		with open("{}.output".format(args.input), "w") as outfile:
+			for a in t.keys(shallow=False):
+				if reverse(a) in allscores_dict:
+					if t[a][0] > 0.55:
+						outfile.write(reverse(a) + "\tM\n")
+					elif t[a][1] > 0.55:
+						outfile.write(reverse(a) + "\tF\n")
+					else:
+						print(reverse(a) + "\t" + str(t[a]))
+						
+	if args.get_accuracy:
+		
+		#   check if other necessary arguments are provided for.
+		if not args.input:
+			print("MISSING ARGUMENT\n"
+			      "-i:  Input File for predictions")
+			exit(0)
+		if not args.conllu:
+			print("MISSING ARGUMENT\n"
+			      "--conllu:    CONLLU files for bootstraping algorithm")
+			exit(0)
+		
+		#   get predictions in a dictionary
+		predict = dict()
+		with open(args.input, "r") as predict_file:
+			contents = predict_file
+			for line in contents:
+				word, gender = line.strip("\n").split("\t")
+				predict[word] = gender
+		
+		#   get truth values using context bootstraping with exact values, and append them to a dictionary
+		from collections import defaultdict
+		from sample.process_sample import get_gender
+		
+		scores = defaultdict(list)
+		true = dict()
+		for word in predict:
+			scores[word] = [0, 0, 0]
+		scores = process_conllu(scores)
+		for items in scores:
+			male, female, quest = scores[items]
+			if male == 0 and quest == 0 and female != 0:
+				true[items] = "F"
+			elif female == 0 and quest == 0 and male != 0:
+				true[items] = "M"
+		
+		#   get accuracy
+		i = 1
+		right = 0
+		for word in true:
+			if word in predict:
+				if predict[true] == true[word]:
+					right += 1
+			i += 1
+		
+		# 	print accuracy
+		print("Accuracy: " + str(right) + " / " + str(i) + " = " + str(right*100/i) + " %")
