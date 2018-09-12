@@ -2,27 +2,19 @@
 
 import sys
 
-# TODO: Edit documentation
 if len(sys.argv) < 3:
 	print("You must give at least 2 files to analyze their outputs with the switch.\n"
 	      "Switches:\n"
-	      "translation : \n"
-	      "translation_check : \n"
+	      "translation : reads input from true_gender file, and checks the gender against trailing CONLLU files for their gender\n"
+	      "translation_check : compares two files, to give the output based on how correct are the values in generated tsv to truth values.\n"
 	      "usage: {} switch input_files".format(sys.argv[0]))
 	exit(1)
 
-type_file = None
-if len(sys.argv[2].split(".")) >= 2:
-	type_file = sys.argv[2].split(".")[1].lower()
 switch = sys.argv[1]
 
-def extension_check():
-	for i in range(2, len(sys.argv)):
-		if sys.argv[i].split(".")[1].lower() != type_file:
-			print("All files must be of same type")
-			exit(1)
 
-# copied from extract_dict.py
+# repetitively used in filter_data.py
+# gets gender value of a CONLL-U format line
 def get_gender(phrase):
 	feats = phrase.split("\t")[5].split("|")
 	for items in feats:
@@ -31,16 +23,21 @@ def get_gender(phrase):
 
 
 if switch == "translation":
+	
 	if len(sys.argv) < 4:
 		print("Need at least 3 arguments. Usage:\n"
 		      "this_file switch true_gender_source conllu_files")
+	
 	source = []
+	
 	# store the gender true nouns in a list.
 	with open(sys.argv[2], "r") as sourcefile:
 		contents = sourcefile.readlines()
 		for lines in contents:
 			source.append(lines.strip("\n"))
 	
+	# analyse conllu files to update the `scores` defaultdict of [M, F, Q] counts.
+	# M= Male, F= Female, Q= Questionable
 	from collections import defaultdict
 	scores = defaultdict(list)
 	for i in range(3, len(sys.argv)):
@@ -63,8 +60,9 @@ if switch == "translation":
 						elif get_gender(line) == "Fem":
 							scores[token][1] += 1
 						else:
-							# the tokens without either tag, would be removed from the list, since they are usually Noun-ised versions of other POS tags. Eg- भारतीय (Indian)
 							scores[token][2] += 1
+							
+	# 	with the values generated, write the decisions to stdout.
 	for i in scores:
 		if i in source:
 			male, female, quest = scores[i]
@@ -84,13 +82,21 @@ if switch == "translation":
 			print(i, male, female, quest, decision, sep="\t")
 
 if switch == "translation_check":
+	
 	if len(sys.argv) != 4:
-		print("compares two files, to give the output based on how correct are the values in generated tsv to truth values. Usage:\n"
+		print("Usage:\n"
 		      "this_file translation_check file_with_predictions file_with_truth values")
 		exit(0)
+	
+	# this will contain the true_gender, as per the gold-standard
 	truth_val = dict()
+	# this will contain the english translation of the hindi token, used for final print to stdout.
 	trans = dict()
+	
+	# output file
 	outfile = open("sample/truth_data_analysis", "w")
+	
+	# process the reference value and store in dicts.
 	with open(sys.argv[3], "r") as truth:
 		contents = truth.readlines()
 		for lines in contents:
@@ -101,20 +107,26 @@ if switch == "translation_check":
 					trans[hin] = eng
 	std_decisions = ["M", "F"]
 	
+	# open predictions file, and generate a TSV resembling Table 1 in the paper.
 	with open(sys.argv[2], "r") as prediction:
 		contents = prediction.readlines()
 		for lines in contents:
 			token, male, female, quest, decision = lines.strip("\n").split("\t")
 			symbol = ""
+			# if predicted tag == right tag
 			if decision == truth_val[token]:
 				symbol = "+"
 			else:
+				#   wrong decision entirely
 				if decision in std_decisions:
 					symbol = "-"
+				# 	if there was no decision
 				elif decision == "~":
 					symbol = "?"
+				# 	if value is correctly tagged as [M, F], but ends with ~ sign
 				elif decision[0] == truth_val[token] and decision[1] == "~":
 					symbol = "+-"
+				# 	if value is incorrectly tagged, and ends with ~ sign
 				elif decision[0] != truth_val[token] and decision[1] == "~":
 					symbol = "-~"
 			total = int(male) + int(female) + int(quest)
