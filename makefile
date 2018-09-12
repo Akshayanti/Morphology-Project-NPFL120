@@ -84,9 +84,13 @@ sample_data:
 	#	Check the translations and get Table 1 as in the source paper.
 
 		#	Test to know how many values in the true_gender values are used in different context, and output result in an intermediate file.
+		#	Output file: sample/test
 	python3 sample/process_sample.py translation true_gender_hin.list sample/*.output > sample/test
+
 		#	Process this intermediate file, to generate the symbols as explained in process_sample.py file as comments to get a similar output to table 1 in the reference paper
+		#	Output file: sample/truth_data_analysis
 	python3 sample/process_sample.py translation_check sample/test true_gender_eng_to_hin.tsv
+
 		#	Sort the output file, and get rid of the intermediate file
 	sort -u sample/truth_data_analysis > sample/default_seeds_table.tsv
 	rm sample/test
@@ -101,10 +105,11 @@ bootstrap:
 	python3 filter_data.py -i true_gender_eng_to_hin.tsv -ds
 
 	#	remove seeds, ambiguous content, low freq items from sample/sample.most_common
+
 		#	output file generated:	sample/sample.most_common.list_filtered
 	python3 filter_data.py -i sample/sample.most_common -fl -l remove_list
 	mv sample/sample.most_common.list_filtered sample/sample.removed
-	wc -l sample/sample.removed
+
 		#	output file generated:	sample/sample.removed.list_filtered > context_bootstrap
 	python3 filter_data.py -i sample/sample.removed -fl -l seeds.LIST
 	mv sample/sample.removed.list_filtered sample/context_bootstrap
@@ -126,6 +131,7 @@ morphology:
 	cat sample/morpho.output >> seeds.LIST
 
 	#	let's start processing the corpus that we initially extracted nouns from
+
 		#	remove all the tokens that are present in remove_list
 		#	Output file:	hi.most_common.list_filtered > hi.non-ambig1
 	python3 filter_data.py -fl -l remove_list -i hi.most_common
@@ -142,13 +148,10 @@ morphology:
 	python3 filter_data.py -fl -l seeds.LIST -i hi.non-ambig
 	mv hi.non-ambig.list_filtered hi.morph
 	rm hi.non-ambig
-	wc -l hi.morph
 
 		#	now, let us use the trie model for hi.morph file to get the final output
 		#	Output file: hi.morph.output
 	python3 filter_data.py --morphology -i hi.morph > hi.morph.not_analysed
-	wc -l hi.morph.output
-	wc -l hi.morph.not_analysed
 
 	#	Finally, get stats to check how the system performed on the corpus
 	python3 filter_data.py --get_accuracy -i hi.morph.output --conllu hi.output
