@@ -9,8 +9,6 @@ parser.add_argument("-pos", "--pos_tag", type=str, help="POS tag to extract", re
 parser.add_argument("-c", "--count", action='store_true', help = "Display a count of the unique nouns (Case-insensitive) in output file .most_common", required=False)
 args = parser.parse_args()
 
-# TODO: Organize the switches according to the pipeline, to make it more streamlined.
-# TODO: Add documentation
 
 # GET INDIVIDUAL LINES WITH POS_TAGS HERE, AND THE TOKENS WITH THEIR ROOTS
 def process_conllu(line):
@@ -33,6 +31,9 @@ def process_conllu(line):
 
 	
 if __name__ == "__main__":
+	
+	# if POS tag is given, extract the tokens with the given POS tag, and generate a file with only the lines containing the occurence tokens.
+	# list of tokens is generated in .POS file
 	if args.pos_tag is not None:
 		if args.input.split(".")[-1].lower() != "conllu":
 			print("If using -pos switch, the input file must be a conllu format file, ending with `.conllu`")
@@ -48,7 +49,9 @@ if __name__ == "__main__":
 					else:
 						out1.write(process_conllu(line))
 		out_list1.close()
-		
+	
+	# generate a file containing the values with the token and the number of times it appeaers in the corpus, in `token : count` format.
+	# output file is of form .most_common
 	if args.count:
 		from collections import Counter
 		counter = Counter()
@@ -73,6 +76,8 @@ if __name__ == "__main__":
 					else:
 						counter[word.lower()] = 1
 		counter = counter.most_common()
+		
+		# output the results in the output file
 		with open("{}.most_common".format(args.input.split(".")[0]), "w") as stats:
 			for vals in counter:
 				stats.write(vals[0] + " : "+str(vals[1])+"\n")
