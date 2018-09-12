@@ -6,9 +6,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", type= str, help="Input File", required=False)
 
-parser.add_argument("-ff", "--filter_by_freq", action='store_true', help="Create a version of file with frequency >= \'-f\'", required=False)
-parser.add_argument("-f", "--frequency", type=int, help="The threshold frequency below which the tokens need to be deleted", required=False)
-
 parser.add_argument("-fl", "--filter_by_list", action='store_true', help="Create a version of file with tokens from \'-l\' removed", required=False)
 parser.add_argument("-l", "--list_file", type=str, help="File with the list of tokens to filter", required=False)
 
@@ -202,27 +199,6 @@ if __name__ == "__main__":
 			for a in items:
 				outfile.write(a + " : " + str(items[a]) + "\n")
 	
-	if args.filter_by_freq:
-		
-		#    check if other necessary arguments are provided for.
-		if not args.frequency:
-			print("MISSING ARGUMENT\n"
-			      "-f: The threshold frequency below which the tokens need to be deleted")
-			exit(0)
-		
-		#   if contents of a file are less than the min frequency, discard
-		items = dict()
-		with open(args.input, "r") as infile:
-			contents = infile.readlines()
-			for line in contents:
-				key, value = line.split(" : ")
-				if int(value.strip("\n")) >= args.frequency:
-					items[key] = int(value.strip("\n"))
-		
-		#   write the results in output file.
-		with open(args.input+"_min_"+str(args.frequency), "w") as outfile:
-			for a in items:
-				outfile.write(a + " : " + str(items[a]) + "\n")
 	
 	if args.combine:
 		
