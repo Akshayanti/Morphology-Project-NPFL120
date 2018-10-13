@@ -125,8 +125,10 @@ bootstrap:
 #	With the contextual bootstrapping completed, we move on to morphological analysis using trie model
 # 	And finally, we generate the coverage and the final accuracy of the trie based approach.
 morphology:
+	
 	#	morphologically tag all the values in the sample data
 	#	output files:	morpho.output, 	morpho.not_analysed
+	
 	python3 filter_data.py --morphology -i sample/morpho --conllu sample/*.output > sample/morpho.not_analysed
 	cat sample/morpho.output >> seeds.LIST
 

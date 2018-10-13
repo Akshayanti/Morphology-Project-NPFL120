@@ -387,7 +387,7 @@ if __name__ == "__main__":
 		right = 0
 		for word in true:
 			if word in predict:
-				if predict[true] == true[word]:
+				if predict[word] == true[word]:
 					right += 1
 			i += 1
 		
