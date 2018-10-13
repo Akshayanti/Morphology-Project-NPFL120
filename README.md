@@ -166,13 +166,13 @@ Success Rate:                   BM*100 / TM = 95.7068 %
 <h4>Main corpus</h4>
 
 Extracted Tokens:   159 447  
-Removed Tokens:       7 668
+Removed Tokens:       7 668  
 
 Tokens to process:  151 779  
 Tokens processed:  14 472 
 
-Total true-gender words (TT):  12 904
-Found true-gender words (FF):  9 541
+Total true-gender words (TT):  12 904  
+Found true-gender words (FF):  9 541  
 Accuracy (computed):    FF * 100 / TT = 73.93831 %
 
 <h2>References and Citations</h2>
