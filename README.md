@@ -148,7 +148,7 @@ A table of statistics similar to Table 1 in the source paper can be found in [th
 <h4>Smaller Corpus</h4>
 
 Extracted Tokens:     8829  
-Tokens removed:         931
+Tokens removed:         931  
 Effective number of tokens:     7954
 
 Natural-gender seeds:   106  
