@@ -3,12 +3,12 @@
 <h2>About</h2>
 This is the morphology project submitted for NPFL096- Computational Morphology coursework, taught by Jirka Hana for 2018 Summer Semester.
 
-The project is an implementation of the [paper](base_paper) [1] on 'Minimally Supervised Induction of Grammatical Gender' for the evaluation of English-Hindi pair.
+The project is an implementation of the [paper](https://aclweb.org/anthology/N/N03/N03-1006.pdf) [1] on 'Minimally Supervised Induction of Grammatical Gender' for the evaluation of English-Hindi pair.
 
 <h2>Data Resources</h2>
 
 1. IIT-B parallel-corpus [2], available for download [here](http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/).
-2. [UDPipe](udpipe) [3] for analysis and processing of the parallel-corpus mentioned above.
+2. [UDPipe](http://hdl.handle.net/11234/1-1702) [3] for analysis and processing of the parallel-corpus mentioned above.
 3. Google's pygtrie Python library [4]. 
 4. UD 2.x Treebanks for Hindi Language [5].
 
@@ -177,18 +177,14 @@ Accuracy (computed):    FF * 100 / TT = 73.93831 %
 
 <h2>References and Citations</h2>
 
-[1] Cucerzan, S., & Yarowsky, D. (2003). [Minimally supervised induction of grammatical gender](base_paper). In Proceedings of the 2003 Conference of the North American Chapter of the Association for Computational Linguistics on Human Language Technology-Volume 1 (pp. 40–47). Association for Computational Linguistics.  
+[1] Cucerzan, S., & Yarowsky, D. (2003). [Minimally supervised induction of grammatical gender](https://aclweb.org/anthology/N/N03/N03-1006.pdf). In Proceedings of the 2003 Conference of the North American Chapter of the Association for Computational Linguistics on Human Language Technology-Volume 1 (pp. 40–47). Association for Computational Linguistics.  
 
-[2] Anoop Kunchukuttan, Pratik Mehta, Pushpak Bhattacharyya. [The IIT Bombay English-Hindi Parallel Corpus](IIT-B). 2017 
+[2] Anoop Kunchukuttan, Pratik Mehta, Pushpak Bhattacharyya. [The IIT Bombay English-Hindi Parallel Corpus](http://www.cfilt.iitb.ac.in/iitb_parallel/). 2017 
 
-[3] [UDPipe project](udpipe), maintained by UFAL, Charles University, Prague.
+[3] [UDPipe project](http://hdl.handle.net/11234/1-1702), maintained by UFAL, Charles University, Prague.
 
-[4] Google's pygtrie library, implementing trie-structures. Available on GitHub [here](pygtrie). 
+[4] Google's pygtrie library, implementing trie-structures. Available on GitHub [here](https://github.com/google/pygtrie). 
 
-[5] Treebanks for UDPipe Version 2.x available [here](treebank). Date of last access: August 25, 2018.
+[5] Treebanks for UDPipe Version 2.x available [here](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2837). Date of last access: August 25, 2018.
 
-[base_paper]: https://aclweb.org/anthology/N/N03/N03-1006.pdf
-[IIT-B]: http://www.cfilt.iitb.ac.in/iitb_parallel/
-[udpipe]: http://hdl.handle.net/11234/1-1702
-[treebank]: https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2837
-[pygtrie]: https://github.com/google/pygtrie
+[IIT-B]: 
