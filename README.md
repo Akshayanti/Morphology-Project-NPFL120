@@ -186,5 +186,3 @@ Accuracy (computed):    FF * 100 / TT = 73.93831 %
 [4] Google's pygtrie library, implementing trie-structures. Available on GitHub [here](https://github.com/google/pygtrie). 
 
 [5] Treebanks for UDPipe Version 2.x available [here](https://lindat.mff.cuni.cz/repository/xmlui/handle/11234/1-2837). Date of last access: August 25, 2018.
-
-[IIT-B]: 
