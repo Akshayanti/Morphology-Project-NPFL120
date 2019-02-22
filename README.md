@@ -120,7 +120,7 @@ Some notes for [true_gender_eng_to_hin.tsv](true_gender_eng_to_hin.tsv) file:
 5. A lot of translations also serve as proper nouns, so might have been removed then, or errorenously tagged that way.
 6. Instead of using `gentleman` and `lady` as in paper, `sir` and `madam` was used instead.
 
-<h2>Table 1</h2>
+<h2>Table of statistics, as in original paper</h2>
 
 A table of statistics similar to Table 1 in the source paper can be found in [this](default_seeds_table.tsv) file. The following is the structure of the file:
 ```bash
@@ -145,7 +145,7 @@ A table of statistics similar to Table 1 in the source paper can be found in [th
      
 <h2>Statistics</h2>
 
-<h4>Smaller Corpus</h4>
+<h4>Smaller Corpus, generated `from sample_data` </h4>
 
 Extracted Tokens:     8829  
 Tokens removed:         931  
