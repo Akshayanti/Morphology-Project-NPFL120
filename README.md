@@ -175,7 +175,7 @@ Tokens processed:  14 472
 
 Total true-gender words (TT):  12 904  
 Found true-gender words (FF):  9 541  
-Accuracy (computed):    FF * 100 / TT = 73.93831 %
+Recall (computed):    FF * 100 / TT = 73.93831 %
 
 <h2>References and Citations</h2>
 
