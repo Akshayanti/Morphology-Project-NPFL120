@@ -5,6 +5,8 @@ This is the morphology project submitted for NPFL096- Computational Morphology c
 
 The project is an implementation of the [paper](https://aclweb.org/anthology/N/N03/N03-1006.pdf) [1] on 'Minimally Supervised Induction of Grammatical Gender' for the evaluation of English-Hindi pair.
 
+The objective was to determine the grammatical gender of Hindi nouns, having known a few true-gender instances. We use morphological features, and bootstrapping algorithms over the true-gender instances.
+
 <h2>Data Resources</h2>
 
 1. IIT-B parallel-corpus [2], available for download [here](http://www.cfilt.iitb.ac.in/iitb_parallel/iitb_corpus_download/).
